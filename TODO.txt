@@ -1,0 +1,65 @@
+Organic programming
+================================
+
+* Ensure separation of method layers within object
+  - allow any higher layer method to call a lower level method 
+    - only muscles can access Object skeleton (state)
+  - allow for feedback from lower level methods to upper levels through call backs
+  - motor: 
+    - muscle_sensors - senses muscle feedback
+  - brain: 
+    - motor_sensors  - senses motor feedback
+    - muscle_sensors - senses muscle feedback    
+* Create exception (or silently ignore) if any of these rules are violated
+
+* Create brain layer
+* Create sensory layer
+
+* In rare cases, allow for an object to have a nerve layer
+  - Nerves connect brain to motors or muscles
+  - SyncNerves
+  - AsyncNerves
+  
+* an Object should rarely use more (have active) than 2-3 brains at a time, and most often just one specialized for the current context
+
+* Any object can use one or more Organic layers
+
+* A Tool is some foreign object that is used for some use case where the object is a party
+ - a Tool can be used by Brain, Sensor, Muscle or Motor to assist in its operation
+ - a tool is never persisted directly
+
+* When a modular layer is added to an object, the object should keep track of which methods it has available in each layer
+ 
+* Persistence
+ - Should be in semi- or non-structured database
+ 
+* Use const_missing for registering Modules
+- See Dave Thomas example (movie 6 - at the end) 
+Color::Red, becomes constant
+def self.const_missing(name)
+  const_set(name, new)
+end 
+
+class Enum
+  def self.new
+    Class.new do
+      def initialize(name)
+        @name = name
+      end
+      
+      def to_s
+        "#{self.class.name}->#{@name}"
+      end
+      
+      def self.const_missing(name)
+        const_set(name, new(name))
+      end 
+    end
+  end
+end
+
+Color = Enum.new
+ThreatLevel = Enum.new
+puts ThreatLevel::Red
+
+Color::Red != ThreatLevel::Red
