@@ -1,0 +1,61 @@
+h1. Organic Programming (OP)
+
+_Organic Programming_ is a term I coined back in 2009 after having seen a presentation at the _Øredev_ conference in Malmö about the limits of the classic "MVC":http://en.wikipedia.org/wiki/Model%E2%80%93View%E2%80%93Controller pattern and how using the "DCI":http://www.artima.com/articles/dci_vision.html pattern can help overcome some of those limitations. 
+
+I felt it was somewhat of an eye-opener, but also that the DCI vision was still very limitied and could be taken much further, especially leveraging the recent technology breakthroughs in terms of dynamic languages and schema less data stores etc.
+
+My vision of Organic Programming, is simply to construct a framework that allows a new kind of architecture/modelling that is similar to how organisms (organic creatures) and even organic systems (collections of organisms) are strucutred, and even to some extens to how the brain is structured and works, by parsing messages and responding with new messqges and/or moving body parts.
+
+h2. The Object as an Organism
+
+Modern systems design typically involved designing a domain model, consisting of various object classes with relationships between them. Each object class further encapsulates its own business logic. On the surface this seems pretty reasonable.
+
+h3. Relational and composite relationships 
+
+But relationships differ. Some relationships are references where others are compositions. The typical object model languages do not have mechanisms to make this distinction explicit. Extra logic has to be added to ensure a composite pointer does not reference an external entity. This is not a sound model, but is possibly due to the Relational Data model of relational databases where everything is just references (no real inherit composition possible).
+
+In recent years however, Document datastores have appeared where you can explicit make referential and embedded rerlationships. This distinction should occur at all levels and not only in the datastore. Using an Object-Store data mapper (note: I don't like the term ORM in this context, as the R refers to Relational data stores), this relationship can be encapsulate in the domain model :)
+
+h3. Business Logic
+
+Business logic operates at many levels but can generally be categorized into the following:
+
+* Event driven
+* State operations
+* Complex calculations
+
+Some business logic operates in the "outer layer" of the object and takes incoming messages and decides what to do, either to respond with other messages or to operate on the internal state of the object. Operating on the internal state of the object takes other business logic.
+
+In order to maximize flexibiloity I propose a "Sensory layer" which parses incoming messages and translates them to a uniform set of messages that the object can understand.
+The sensory layer would hand off these messages to the "Brian" of the object which has the responsibility of determining what to do with the message (or event).
+Often this would be a simple dispatch to some lower layer or a simple response back to the sender, but sometimes various internal states and outer relationships or even previous messages must be taken into consideration. In order to handle this in the most flexible sense, I propose to use a light weight *Rules Engine* for this purpose.
+
+Every Object should have its own little set of rules in a Rules engine...  A Rule engine triggers events based on rules given one or more incoming external/internal events. 
+The Brain should send these resulting conclusion events to an Event dispatcher (Nervous system) which decided what to do with these conclusions, either to feed them into the brain again, to respond to callers or to activate an underlying layers within the object itself (typically a muscle layer).
+
+h3. Muscle layers
+
+The Muscle layers of an object takes events received from the _event dispatcher_ and executes muscle actions on internal state. Messages can then be sent back to the dispatcher to communicate the result action having taken place (or failed). The muscles operate on the skeleton of the object which are the states that can be set and are mapped to the data store. Since a schema-less data store is used, the internal skeleton (schema) might also change over time depending on the context of operation.
+The object should use versioning, in order to use previous state information (history) at various layers of the business logic.
+
+h3. Skeleton
+
+The skeleton should only consist of primitive and composite objects. All references to external objects should be handled in an "external reference layer". 
+
+h3. External references
+
+The external reference layer should have its own muscle layers and event dispatcher that handles communication between the object itself and external objects.
+
+h2. Design considerations (ruby)
+
+In my original design back in 2009, I used the mixology library in order to mixin and remove modules from an object at runtime. A more flexible and easy approach would be to just use the delegate pattern and have a set of objects for a given context that can be delegated to using dynamic delegation and then remove references when moving out of context. No need for advanced meta magic.
+
+Each object should have at least an Inner Context and an Outer Context. A context might in turn be composed of (or the result of) several minor Contexts, fx a Skeleton Context, Brain Context etc. ?
+
+h2. Conclusion
+
+All this might seem overly complex for most situations, but given the right DSL, this would allow complex business logic to be structured in a much better fashion more natural to how it really operates and with the right DSL constructs the trivial cases could be made easy to define and implement as well, so as to match requirements of "both worlds", both the very complex, simple and in-between complex cases.
+
+An Organic Programming model as proposed might be the solution to overcome the complexity trap we are currently in, when designing systems that grow overly complex over time!
+
+
